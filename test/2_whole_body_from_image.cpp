@@ -10,7 +10,7 @@
 
 // Custom OpenPose flags
 // Producer
-DEFINE_string(image_path, "../img/28.jpeg",
+DEFINE_string(image_path, "../img/test_src/29.jpeg",
     "Process an image. Read all standard formats (jpg, png, bmp, etc.).");
 
 // This worker will just read and return all the jpg files in a directory
@@ -22,7 +22,7 @@ void display(const std::shared_ptr<std::vector<op::Datum>>& datumsPtr)
     if (datumsPtr != nullptr && !datumsPtr->empty())
     {
         // Display image
-        cv::imshow("User worker GUI", datumsPtr->at(0).cvOutputData3D);
+        cv::imshow("User worker GUI", datumsPtr->at(0).cvOutputData);
         cv::waitKey(0);
     }
     else

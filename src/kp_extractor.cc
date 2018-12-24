@@ -31,9 +31,52 @@ void api::opk::kpExtractor::computeKp(const cv::Mat &img) {
   this->datum_processed_ =  op_wrapper_.get()->emplaceAndPop(img);
 }
 
+void api::opk::kpExtractor::computeKp(const stdImage &img) {
+  cv::Mat cv_img = api::opk::common::stdToCvimg(img);
+  this->datum_processed_ =  op_wrapper_.get()->emplaceAndPop(cv_img);
+}
+
 cv::Mat api::opk::kpExtractor::getResultImg() {
   if (this->datum_processed_ != nullptr && !this->datum_processed_->empty()) {
     return this->datum_processed_->at(0).cvOutputData.clone();
   }
 }
 
+stdKeypoint api::opk::kpExtractor::getKeypoints() {
+  stdKeypoint out_pt;
+  if (this->datum_processed_ != nullptr && !this->datum_processed_->empty()) {
+    auto pose_kp = this->datum_processed_->at(0).poseKeypoints;
+    auto face_kp = this->datum_processed_->at(0).faceKeypoints;
+    auto hand_l_kp = this->datum_processed_->at(0).handKeypoints[0];
+    auto hand_r_kp = this->datum_processed_->at(0).handKeypoints[1];
+    this->appendFront(out_pt, pose_kp);
+    this->appendFront(out_pt, face_kp);
+    this->appendFront(out_pt, hand_l_kp);
+    this->appendFront(out_pt, hand_r_kp);
+  }
+  return out_pt;
+}
+
+void api::opk::kpExtractor::appendFront(stdKeypoint &std_kp, const op::Array<float> &op_pk) {
+  int num_ppl = op_pk.getSize()[0];
+  int num = op_pk.getSize()[1];
+  int dim = op_pk.getSize()[2];
+  std::cout << num_ppl << ", ";
+  std::cout << num << ", ";
+  std::cout << dim << std::endl;
+  static std::pair<int, int> xy;
+  for (int i = 0; i < num; i++) {
+    if (op_pk.at(dim*i+dim-1) != 0) {
+      xy.first = op_pk.at(dim*i);
+      xy.second = op_pk.at(dim*i+1);
+      // std::cout << xy.first << ", " << xy.second << std::endl;
+      if (std_kp.size() == 0) {
+        std::vector<std::pair<int, int>> front;
+        front.push_back(xy);
+        std_kp.push_back(front);
+      } else {
+        std_kp[0].push_back(xy);
+      }
+    }
+  }
+}

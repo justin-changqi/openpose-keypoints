@@ -7,6 +7,7 @@
 #include <vector>
 #include <utility>
 #include <opencv2/opencv.hpp>
+#include <openpose/headers.hpp>
 
 typedef std::tuple<std::pair<int, int>,
         std::vector<std::array<std::uint8_t, 4>>> stdImage;

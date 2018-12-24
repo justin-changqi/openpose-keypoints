@@ -15,7 +15,11 @@ add_library(common src/common.cc)
 target_link_libraries(common ${OpenCV_LIBS})
 
 add_library(kp_extractor src/kp_extractor.cc)
-target_link_libraries(kp_extractor ${OpenPose_LIBS} ${GFLAGS_LIBRARY} ${GLOG_LIBRARY} ${OpenCV_LIBS})
+target_link_libraries(kp_extractor common 
+                                   ${OpenPose_LIBS} 
+                                   ${GFLAGS_LIBRARY} 
+                                   ${GLOG_LIBRARY} 
+                                   ${OpenCV_LIBS})
 
 add_executable(test_cvopenpose app/test_cvopenpose.cc)
 target_link_libraries(test_cvopenpose kp_extractor )

@@ -10,6 +10,9 @@
 // #include <openpose/flags.hpp>
 // OpenPose dependencies
 #include <openpose/headers.hpp>
+#include "api/opk/common.hpp"
+
+typedef std::vector<std::vector<std::pair<int, int>>> stdKeypoint;
 
 namespace api {
 namespace opk {
@@ -19,8 +22,11 @@ class kpExtractor {
   kpExtractor();
   void display(const std::shared_ptr<std::vector<op::Datum>>& datumsPtr);
   void computeKp(const cv::Mat &img);
+  void computeKp(const stdImage &img);
   cv::Mat getResultImg();
+  stdKeypoint getKeypoints();
  private:
   std::shared_ptr<std::vector<op::Datum>> datum_processed_;
+  void appendFront(stdKeypoint &std_kp, const op::Array<float> &op_pk);
 };
 }};
