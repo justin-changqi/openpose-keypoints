@@ -42,40 +42,39 @@ cv::Mat api::opk::kpExtractor::getResultImg() {
   }
 }
 
-stdKeypoint api::opk::kpExtractor::getKeypoints() {
+stdKeypoint api::opk::kpExtractor::getKeypoints(double th) {
   stdKeypoint out_pt;
   if (this->datum_processed_ != nullptr && !this->datum_processed_->empty()) {
     auto pose_kp = this->datum_processed_->at(0).poseKeypoints;
     auto face_kp = this->datum_processed_->at(0).faceKeypoints;
     auto hand_l_kp = this->datum_processed_->at(0).handKeypoints[0];
     auto hand_r_kp = this->datum_processed_->at(0).handKeypoints[1];
-    this->appendFront(out_pt, pose_kp);
-    this->appendFront(out_pt, face_kp);
-    this->appendFront(out_pt, hand_l_kp);
-    this->appendFront(out_pt, hand_r_kp);
+    this->appendFront(out_pt, pose_kp, th);
+    this->appendFront(out_pt, face_kp, th);
+    this->appendFront(out_pt, hand_l_kp, th);
+    this->appendFront(out_pt, hand_r_kp, th);
   }
   return out_pt;
 }
 
-void api::opk::kpExtractor::appendFront(stdKeypoint &std_kp, const op::Array<float> &op_pk) {
+void api::opk::kpExtractor::appendFront(stdKeypoint &std_kp, const op::Array<float> &op_pk, double th) {
   int num_ppl = op_pk.getSize()[0];
   int num = op_pk.getSize()[1];
   int dim = op_pk.getSize()[2];
-  std::cout << num_ppl << ", ";
-  std::cout << num << ", ";
-  std::cout << dim << std::endl;
   static std::pair<int, int> xy;
-  for (int i = 0; i < num; i++) {
-    if (op_pk.at(dim*i+dim-1) != 0) {
-      xy.first = op_pk.at(dim*i);
-      xy.second = op_pk.at(dim*i+1);
-      // std::cout << xy.first << ", " << xy.second << std::endl;
-      if (std_kp.size() == 0) {
-        std::vector<std::pair<int, int>> front;
-        front.push_back(xy);
-        std_kp.push_back(front);
-      } else {
-        std_kp[0].push_back(xy);
+  for (int i = 0; i < num_ppl; i++) {
+    for (int j = num*i; j < num*i+num; j++) {
+      int index = j*dim;
+      if (op_pk.at(index+2) > th) {
+        xy.first = op_pk.at(index);
+        xy.second = op_pk.at(index+1);
+        if (std_kp.size() == 0) {
+          std::vector<std::pair<int, int>> front;
+          front.push_back(xy);
+          std_kp.push_back(front);
+        } else {
+          std_kp[0].push_back(xy);
+        }
       }
     }
   }

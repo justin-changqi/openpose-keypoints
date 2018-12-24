@@ -10,7 +10,7 @@
 
 // Custom OpenPose flags
 // Producer
-DEFINE_string(image_path, "../img/test_src/29.jpeg",
+DEFINE_string(image_path, "../img/test_src/15.jpeg",
     "Process an image. Read all standard formats (jpg, png, bmp, etc.).");
 
 // This worker will just read and return all the jpg files in a directory
