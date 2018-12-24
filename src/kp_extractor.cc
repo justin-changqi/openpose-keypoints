@@ -57,6 +57,35 @@ stdKeypoint api::opk::kpExtractor::getKeypoints(double th) {
   return out_pt;
 }
 
+stdKeypoint api::opk::kpExtractor::getKeypoints(double th, const cv::Mat gt_img) {
+  stdKeypoint out_pt;
+  if (this->datum_processed_ != nullptr && !this->datum_processed_->empty()) {
+    auto pose_kp = this->datum_processed_->at(0).poseKeypoints;
+    auto face_kp = this->datum_processed_->at(0).faceKeypoints;
+    auto hand_l_kp = this->datum_processed_->at(0).handKeypoints[0];
+    auto hand_r_kp = this->datum_processed_->at(0).handKeypoints[1];
+    this->appendFront(out_pt, pose_kp, th);
+    this->appendFront(out_pt, face_kp, th);
+    this->appendFront(out_pt, hand_l_kp, th);
+    this->appendFront(out_pt, hand_r_kp, th);
+  }
+  // add background points
+  std::vector<std::pair<int, int>> back_ground;
+  std::pair<int, int> b_pt;
+  std::default_random_engine generator;
+  std::uniform_int_distribution<int> distribution_x(0, gt_img.cols);
+  std::uniform_int_distribution<int> distribution_y(0, gt_img.rows);
+  for (int i = 0; i < 40; i++) {
+    b_pt.first = distribution_x(generator);
+    b_pt.second = distribution_y(generator);
+    if (gt_img.at<cv::Vec4b>(b_pt.second, b_pt.first)[3]== 0) {
+      back_ground.push_back(b_pt);
+    }
+  }
+  out_pt.push_back(back_ground);
+  return out_pt;
+}
+
 void api::opk::kpExtractor::appendFront(stdKeypoint &std_kp, const op::Array<float> &op_pk, double th) {
   int num_ppl = op_pk.getSize()[0];
   int num = op_pk.getSize()[1];

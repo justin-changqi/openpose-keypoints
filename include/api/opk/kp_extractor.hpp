@@ -9,6 +9,7 @@
 #define OPENPOSE_FLAGS_DISABLE_POSE
 // #include <openpose/flags.hpp>
 // OpenPose dependencies
+#include <random>
 #include <openpose/headers.hpp>
 #include "api/opk/common.hpp"
 
@@ -25,6 +26,7 @@ class kpExtractor {
   void computeKp(const stdImage &img);
   cv::Mat getResultImg();
   stdKeypoint getKeypoints(double th);
+  stdKeypoint getKeypoints(double th, const cv::Mat gt_img);
  private:
   std::shared_ptr<std::vector<op::Datum>> datum_processed_;
   void appendFront(stdKeypoint &std_kp, const op::Array<float> &op_pk, double th);
