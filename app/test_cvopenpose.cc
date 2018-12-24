@@ -60,9 +60,15 @@ int main(int argc, char const *argv[]) {
     std::cout << "Loading image " << FOLDER_IMG + std::to_string(i) << ".jpeg ..." << std::endl;
     const auto imageToProcess = cv::imread(FOLDER_IMG + std::to_string(i)+".jpeg");
     const auto gt_img = cv::imread(FOLDER_GT_IMG + std::to_string(i)+".PNG", cv::IMREAD_UNCHANGED);
+    std::chrono::milliseconds ms_a = std::chrono::duration_cast< std::chrono::milliseconds >(
+    std::chrono::system_clock::now().time_since_epoch());
     kp.computeKp(imageToProcess);
-    cv::Mat result = kp.getResultImg();
     stdKeypoint my_kp = kp.getKeypoints(0.1, gt_img);
+    std::chrono::milliseconds ms_b = std::chrono::duration_cast< std::chrono::milliseconds >(
+    std::chrono::system_clock::now().time_since_epoch());
+    auto dt = ms_b - ms_a;
+    std::cout << "Runtime: " << dt.count() << " ms" << std::endl;
+    cv::Mat result = kp.getResultImg();
     cv::Mat draw = imageToProcess.clone();
     drawPoints(my_kp, draw);
     savePoints(my_kp, "../test_data/std_keypoint" + std::to_string(i) + ".csv");
